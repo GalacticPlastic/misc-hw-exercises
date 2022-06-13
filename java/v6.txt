@@ -1,0 +1,331 @@
+/* javaGamev6.java
+ * Team Sassafras:
+ * Mary Mederos, Sam Mark, Kameron Rogers
+ * 11/22/2019
+ * This program is the sixth version for our team project, "Who Wants to Be a Java Programmer?"
+ */
+
+// Import Libraries
+import java.util.Scanner;		// Needed to read from file.
+import java.io.*;
+import javax.swing.JOptionPane;	// Pop up a standard dialog box that prompts users for a value.
+
+public class Main {
+  final static int NUMQUESTIONS=10;
+	public static void main(String[] args) throws IOException {
+		// Arrays set to NUMQUESTIONS size.
+		String[] questionsArray= new String[NUMQUESTIONS];
+    String[] answerA= new String[NUMQUESTIONS];
+    String[] answerB= new String[NUMQUESTIONS];
+    String[] answerC= new String[NUMQUESTIONS];
+    String[] answerD= new String[NUMQUESTIONS];
+    char[] correctAnswer= new char[NUMQUESTIONS];
+    int[] pointValue= new int[NUMQUESTIONS];
+
+    String[] highNames=new String[3];
+    int[] highScores=new int[3];
+            
+    String 	name;				// User entered Name value.
+		int score		= 0;
+		char 	usrMenu;
+
+		//Declare a File object
+		File infile 	= new File("questions.txt");
+		File scorefile	= new File("highscore.txt");
+		
+		// Display game introduction.
+		JOptionPane.showMessageDialog(
+			null,
+			"Who Wants to Be a Java Programmer?\n"
+			+ "=======================\n\n"
+			+ "Put your Java skills to the test!"
+		);
+		
+		JOptionPane.showMessageDialog(
+			null,
+			"Aye, fight and you may die. Run and you'll live -- at least a while.\n\n"
+			+ "And dying in your beds many years from now, would you be willing\n"
+			+ "trade all the days from this day to that for one chance, just one\n"
+			+ "to chance to come back here and tell our enemies that they may take\n"
+			+ "our lives, but they'll never take our freedom!!!"
+		);
+		
+
+	    name = JOptionPane.showInputDialog("Enter your name.");
+	    
+	
+	    usrMenu = displayMainMenu();
+	    
+	    do
+	    {
+	    	while(usrMenu == 'a')
+	    	{
+	    		displayRules();
+          usrMenu = displayMainMenu();
+        }
+	    	
+	    	// Menu Option 2: Play Game
+	    	if (usrMenu == 'b')
+	    	{
+	    		score = 0;
+          //new methods using arrays
+          LoadQuestions(questionsArray,answerA,answerB,answerC,answerD,correctAnswer, pointValue);
+          //setting score= to processQuestion() return
+          score=processQuestion(questionsArray,answerA,answerB,answerC, answerD, correctAnswer, pointValue);
+          
+	    		usrMenu = displayMainMenu();
+		    }
+	    	if (usrMenu == 'c')
+	    	{
+          //passing 2 arrays into reading high score so they can be populated with high scores and names
+	    		readHighScore(highNames, highScores);
+          //passing in current score and name to compare to high scores array
+	    		compareScore(score,name,highNames,highScores);
+          //writing 2 arrys into highscore.txt
+          UpdateHighScores(highNames,highScores);
+	    		System.exit(0);
+		    }
+		} while (usrMenu!='c');
+	    System.exit(0);
+	}
+
+  //returns void
+  //parameters: arrays questions answers correct answer, score values 
+  public static void LoadQuestions(String[] questionsArray,String[] answerA,String[] answerB,String[] answerC,String[] answerD,char[] correctAnswer,int[] pointValue)throws IOException
+    {
+      //open infile
+      File infile 	= new File("questions.txt");
+      Scanner filein = new Scanner(infile);
+
+      //for NUMQUESTIONS reads questions, answers, correct answers, and point value into corresponding arrays
+      for(int i=0;i<NUMQUESTIONS;i++){
+        questionsArray[i]		= filein.nextLine();
+	    			answerA[i] 	= filein.nextLine();
+	    			answerB[i] 	= filein.nextLine();
+	    			answerC[i] 	= filein.nextLine();
+	    			answerD[i] 	= filein.nextLine();
+	    			correctAnswer[i]	= filein.nextLine().charAt(0);
+	    			pointValue[i]		= Integer.parseInt(filein.nextLine());
+      }
+      //close file
+      filein.close();
+    }
+
+
+	/* returns: char
+	 * parameters: void
+	 * prints menu and asks for input, validates input, returns input if a,b,c */
+	public static char displayMainMenu()
+	{
+		String usrMenu;
+		char usrChar;
+		usrMenu = JOptionPane.showInputDialog(
+			null,
+			"Welcome! \n\n"
+            + "Please select from the following options:\n"
+            + "\t a.\t See Rules\n"
+            + "\t b.\t Play Game\n"
+            + "\t c.\t Exit\n"
+    	);
+		
+		do
+		{
+			usrChar = usrMenu.charAt(0);
+			
+			if (usrChar == 'a')
+			{
+				return usrChar;
+			}
+			else if (usrChar == 'b')
+			{
+				return usrChar;
+			}
+			else if (usrChar == 'c')
+			{
+				return usrChar;
+			}
+			else
+			{
+				usrMenu = JOptionPane.showInputDialog(
+	                null,
+	                "Please enter a valid choice. \n\n"
+	                + "Please select from the following options:\n"
+	                + "\t A.\tSee Rules\n"
+	                + "\t B.\tPlay Game\n"
+	                + "\t C.\tExit\n"
+        		);
+			}
+		} while(usrChar != 'a' || usrChar != 'b' || usrChar != 'c');
+		return 'c';
+  	}
+	
+	/* return: void
+	 * parameter: none
+	 * prints out rules of the game */
+	public static void displayRules()
+	{
+		JOptionPane.showMessageDialog(
+	        null,
+	        "Rules of the Game\n"
+	        + "There are 10 multiple choice questions.\n\n"
+	        + "Each question will increase in difficulty.\n"
+	        + "Each question willl be scored diferrently increasing with difficulty.\n"
+	        + "You can only progress if you select the correct answer.\n"
+	        + "Your scores will be stored and dislayed after each answer.\n"
+	        + "If you answer incorrectly, the correct answer will be displayed."
+		);
+  	}
+	
+	/* returns: int
+	 * parameters: question, choices, correct answer, point value
+	 * processes the questions */
+	public static int processQuestion(
+		String[] questionsArray,String[] answerA,String[] answerB,String[] answerC,String[] answerD,char[] correctAnswer,int[] pointValue
+	){
+    //decalre variable to store score and user input
+    int score=0;
+    char userAnswer;
+
+    //for NUMQUESTIONS display questions and answers prompts for answer
+    for (int i=0; i<NUMQUESTIONS;i++){
+		String usrAnswer = (JOptionPane.showInputDialog(
+    		questionsArray[i]
+            +"\n"+ answerA[i]
+            +"\n"+ answerB[i]
+            +"\n"+ answerC[i]
+            +"\n"+ answerD[i]
+    	));
+		
+		char c = usrAnswer.charAt(0);
+		//validates user input
+		while (c != 'a' && c != 'b' && c != 'c' && c != 'd')
+		{
+				usrAnswer = (JOptionPane.showInputDialog("Please enter a valid answer\n"
+					+ questionsArray[i] +"\n" + answerA[i] + "\n" + answerB[i] + "\n" + answerC[i] + "\n" + answerD[i]
+				));
+				c = usrAnswer.charAt(0);
+		}
+    //if the user input mtaches correct answer add the points to score
+    if (c == correctAnswer[i])
+			{
+				score=score+pointValue[i];
+			}
+    displayScore(score);
+    }
+		return score;
+	}
+	
+	/* returns: void
+	 * parameters: arrays name,score
+	 * reads highscore.txt return the high score */
+	public static void readHighScore(String[] name, int[]score)throws IOException
+	{
+    //open highscore file
+		File scorefile 	= new File("highscore.txt");
+		Scanner scorein = new Scanner(scorefile);
+
+    //for 3 iterations read in high scores
+		for(int i=0;i<3;i++ ){
+      name[i] 		= scorein.next();
+		  score[i] 			= scorein.nextInt();
+      
+    }
+    //close file
+		scorein.close();
+ 	}
+
+	/* returns: void
+	 * Parameters: int high score, int userScore
+	 * Sorts the high scores array then compares the high score to low score if user score is greater writes that score otherwise does nothing. */
+	public static void compareScore(int userScore, String userName, String[] name, int Score[]){
+  String tempName;
+  int tempScore=0;
+
+  //sort the scores, so the score insertion properly execute, while the scores are out of order
+  while (Score[0]<Score[1] || Score[1]<Score[2]|| Score[0]<Score[2])
+  {
+      //if last score is higher 
+      if(Score[2]>Score[1]){
+          //copy last score to temp score
+          tempScore=Score[2];
+          tempName=name[2];
+          //set last score to 2nd score
+          Score[2]=Score[1];
+          name[2]=name[1];
+          //set second score to temp score
+          Score[1]=tempScore;
+          name[1]=tempName;
+      }
+      //if 2nd score is greater then first
+      if(Score[1]>Score[0]){
+          //copy 2nd score to temps core
+          tempScore=Score[1];
+          tempName=name[1];
+          //set 2nd score to 1st
+          Score[1]=Score[0];
+          name[1]=name[0];
+          //set first score to temp
+          Score[0]=tempScore;
+          name[0]=tempName;
+      }
+  }
+
+	{
+          //if user's score is higher then 1st score
+          if (userScore> Score[0])
+          {   
+              //shift 2nd score to 3rd
+              Score[2]=Score[1];
+              name[2]=name[1];
+              //shift 1st score to 2nd
+              Score[1]=Score[0];
+              name[1]=name[0];
+              //put user score in first
+              name[0]=userName;
+              Score[0]=userScore;
+          }      
+          //if score his higher then 2nd
+          else if (userScore>Score[1])
+          {
+              //shift 2nd score to 3rd
+              Score[2]=Score[1];
+              name[2]=name[1];
+              //insert user score into 2nd
+              Score[1]=userScore;
+              name[1]=userName;
+          }
+          //if userscore is greater then 3rd
+          else if (userScore > Score[2])
+          {
+            //replace 3rd score with users
+            Score[2]=userScore;
+            name[2]=userName;
+          }
+    
+	}
+  }
+  //returns: void
+  //paramters: Array of high scorers names, Array of high scores
+  // reads from 2 arrays and write it into the highscore.txt
+  public static void UpdateHighScores(String[]highName, int[]highScore)throws IOException{
+            //open highscore.txt for writing
+            PrintWriter outfile = new PrintWriter("highscore.txt");
+            //for 3 iterations write highscore into file
+            for (int i=0; i<3; i++){
+                    {
+                            outfile.print(highName[i]+" ");
+                            outfile.println(highScore[i]);
+                    }
+            }
+            //close score file
+            outfile.close();
+  }
+
+	/* returns: void
+	 * Parameters: int score
+	 * Display user's current score */
+	public static void displayScore(int score)
+	{
+		JOptionPane.showMessageDialog(null, "Your Score is " + score);
+	}
+}
